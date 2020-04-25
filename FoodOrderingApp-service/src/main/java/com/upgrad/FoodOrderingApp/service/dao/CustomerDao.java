@@ -6,7 +6,7 @@ import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 public interface CustomerDao {
     //logic how customer is saved in db
     CustomerEntity saveCustomer(CustomerEntity customerEntity);
-
+    //CustomerEntity getCustomer(CustomerEntity customerEntity);
     CustomerAuthEntity getCustomerAuthByAccesstoken(String accesstoken);
     CustomerEntity getCustomerByContactNumber(String contactNumber);
     //fetch the contactnumber se customer.if exist
