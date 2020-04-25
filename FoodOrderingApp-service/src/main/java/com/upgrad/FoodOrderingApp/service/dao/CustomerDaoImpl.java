@@ -21,13 +21,17 @@ public class CustomerDaoImpl implements CustomerDao{
         return  customerEntity;
     }
 
-    @Override
-    public CustomerEntity getCustomerByContactNumber(String contactNumber) {
+
+    public CustomerEntity getCustomerByContactNumber(final String contactNumber) {
         try {
             return entityManager.createNamedQuery("customerByContactNumber", CustomerEntity.class).setParameter("contactNumber", contactNumber).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
+    }
+    public CustomerAuthEntity createAuthToken(CustomerAuthEntity customerAuthTokenEntity) {
+        this.entityManager.persist(customerAuthTokenEntity);
+        return customerAuthTokenEntity;
     }
 
     public CustomerAuthEntity getCustomerAuthByAccesstoken(String accesstoken) {
@@ -36,6 +40,9 @@ public class CustomerDaoImpl implements CustomerDao{
         } catch (NoResultException nre) {
             return null;
         }
+    }
+    public void updateCustomer(CustomerEntity updatedCustomerEntity) {
+        this.entityManager.merge(updatedCustomerEntity);
     }
 
 }

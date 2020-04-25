@@ -1,23 +1,32 @@
 package com.upgrad.FoodOrderingApp.service.entity;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
 @Table(name="CUSTOMER")
-//named queries add krna hai
+@NamedQueries(
+        {
+                @NamedQuery(name = "customerByContactNumber", query = "select u from CustomerEntity u where u.contactNumber =:contactNumber")
+        }
+)
 public class CustomerEntity implements Serializable {
 
 @Id
+@Column(name = "id")
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 private int id;
 
 @Column(name="uuid",nullable = false)
 private String uuid;
-@Column(name = "firstName",nullable = false)
+@Column(name = "firstname",nullable = false)
 private String firstName;
 
-@Column(name = "lastName",nullable = false)
+@Column(name = "lastname",nullable = false)
 private String lastName;
 
 @Column(name = "email",nullable = false)
@@ -26,7 +35,7 @@ private String emailAddress;
 @Column(name = "password",nullable = false)
 private String password;
 
-@Column(name = "contact_Number",nullable = false)
+@Column(name = "contact_number",nullable = false)
 private String contactNumber;
 
 @Column(name = "salt",nullable = false)
@@ -100,4 +109,15 @@ public CustomerEntity(){
     public void setSalt(String salt) {
         this.salt = salt;
     }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(this).hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+    }
+
 }
