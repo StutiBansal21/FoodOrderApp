@@ -7,18 +7,19 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import javax.persistence.*;
 import java.io.Serializable;
 
-@Entity
-@Table(name="CUSTOMER")
+@Entity//specifies that the class is an entity and is mapped to a database table
+@Table(name="CUSTOMER")//tells us in which table in the database we have to go
 @NamedQueries(
         {
+              //statically defined query with a predefined unchangeable query string.
                 @NamedQuery(name = "customerByContactNumber", query = "select u from CustomerEntity u where u.contactNumber =:contactNumber")
         }
 )
 public class CustomerEntity implements Serializable {
 
-@Id
-@Column(name = "id")
-@GeneratedValue(strategy = GenerationType.IDENTITY)
+@Id//member field below is the primary key of current entity.
+@Column(name = "id")//the name of the column of the table
+@GeneratedValue(strategy = GenerationType.IDENTITY)//configure the way of increment of the specified column(field)/how the primary key should be generated
 private int id;
 
 @Column(name="uuid",nullable = false)
