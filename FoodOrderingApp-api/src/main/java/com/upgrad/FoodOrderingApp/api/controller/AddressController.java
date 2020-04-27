@@ -1,9 +1,10 @@
+/*
 package com.upgrad.FoodOrderingApp.api.controller;
 
 import com.upgrad.FoodOrderingApp.service.businness.AddressService;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
+import com.upgrad.FoodOrderingApp.service.businness.CustomerServiceImpl;
 import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
-import com.upgrad.FoodOrderingApp.service.entity.CustomerAddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AddressNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
@@ -26,12 +27,16 @@ public class AddressController {
     private CustomerService customerService;
 
     @Autowired
+    private CustomerServiceImpl customerServiceImpl;
+
+    @Autowired
     private AddressService addressService;
 
     @RequestMapping(method = RequestMethod.POST, path = "/address", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SaveAddressResponse> saveAddress(@RequestBody(required = false) final SaveAddressRequest saveAddressRequest, @RequestHeader("authorization") final String randomString) throws
+    public <saveAddressResponse> ResponseEntity<SaveAddressResponse> saveAddress(@RequestBody(required = false) final SaveAddressRequest saveAddressRequest, @RequestHeader("authorization") final String randomString) throws
             AuthorizationFailedException, SaveAddressException, AddressNotFoundException {
-        String authorization = null;
+      */
+/*  String authorization = null;
         String access_token = authorization.split("Bearer ")[1];
 
         //validate the user first using this
@@ -52,7 +57,60 @@ public class AddressController {
 
         final AddressEntity createdAddressEntity = addressService.saveAddress(addressEntity,customerAddressEntity);
         SaveAddressResponse saveAddressResponse = new SaveAddressResponse().id(createdAddressEntity.getUuid()).status("ADDRESS SUCCESSFULLY REGISTERED");
-        return new ResponseEntity<SaveAddressResponse>(saveAddressResponse, HttpStatus.CREATED);
+        return new ResponseEntity<SaveAddressResponse>(saveAddressResponse, HttpStatus.CREATED);*//*
+
+
+        try
+        {
+            CustomerEntity customerEntity = CustomerServiceImpl.getCustomer(randomString);
+            if(customerEntity == null) {
+                throw new AuthorizationFailedException("ATHR-001", "Customer is not logged in.");
+            }
+            if(!customerServiceImpl.checkIsCustomerLoggedIn(randomString))
+            {
+                throw new AuthorizationFailedException("ATHR-002","Customer is logged out.Log in again to access this endpoint.");
+            }
+            if(customerServiceImpl.verifyTokenExpiry(randomString))
+            {
+                throw new AuthorizationFailedException("ATHR-002","Log in again to access this endpoint.")
+            }
+
+            AddressEntity addressEntity = new AddressEntity();
+            addressEntity.setUuid(UUID.randomUUID().toString());
+            addressEntity.setFlatBuilNo(saveAddressRequest.getFlatBuildingName());
+            addressEntity.setLocality(saveAddressRequest.getLocality());
+            addressEntity.setCity(saveAddressRequest.getCity());
+            addressEntity.setPincode(saveAddressRequest.getPincode());
+
+            String stateUuid =saveAddressRequest.getStateUuid();
+            addressServiceImpl.saveAddress(addressEntity,stateUuid,customerEntity);
+
+            SaveAddressResponse saveAddressResponse =new SaveAddressResponse()
+                    .id(addressEntity.getUuid())
+                    .status("ADDRESS SUCCESSFULLY REGISTERED");
+            return new ResponseEntity<SaveAddressResponse>(saveAddressResponse,HttpStatus.CREATED);
+        }
+        catch (AuthorizationFailedException afe)
+        {
+            SaveAddressResponse saveAddressResponse =new SaveAddressResponse()
+                    .id(afe.getCode())
+                    .status(afe.getErrorMessage());
+            return new ResponseEntity<SaveAddressResponse>(saveAddressResponse,HttpStatus.BAD_REQUEST);
+        }
+        catch (SaveAddressException sae)
+        {
+            SaveAddressResponse saveAddressResponse = new SaveAddressResponse().
+                    id(sae.getCode())
+                    .status(sae.getErrorMessage());
+            return new ResponseEntity<SaveAddressResponse>(saveAddressResponse,HttpStatus.BAD_REQUEST);
+        }
+        catch (AddressNotFoundException e)
+        {
+            SaveAddressResponse saveAddressResponse = new SaveAddressResponse()
+                    .id(e.getCode())
+                    .status(e.getErrorMessage());
+            return new ResponseEntity<SaveAddressResponse>(saveAddressResponse,HttpStatus.BAD_REQUEST);
+        }
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/address/customer", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -79,3 +137,4 @@ public class AddressController {
 
 
 }
+*/

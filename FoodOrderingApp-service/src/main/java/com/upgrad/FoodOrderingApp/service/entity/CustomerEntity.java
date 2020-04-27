@@ -1,39 +1,66 @@
 package com.upgrad.FoodOrderingApp.service.entity;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
-@Entity @Table(name = "CUSTOMER")
-//name query will come here
+@Entity//specifies that the class is an entity and is mapped to a database table
+@Table(name="CUSTOMER")//tells us in which table in the database we have to go
+@NamedQueries(
+        {
+                //statically defined query with a predefined unchangeable query string.
+                @NamedQuery(name = "customerByContactNumber", query = "select u from CustomerEntity u where u.contactNumber =:contactNumber")
+        }
+)
 public class CustomerEntity implements Serializable {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Integer id;
+    @Id//member field below is the primary key of current entity.
+    @Column(name = "id")//the name of the column of the table
+    @GeneratedValue(strategy = GenerationType.IDENTITY)//configure the way of increment of the specified column(field)/how the primary key should be generated
+    private int id;
 
-    @Column(name = "firstname", nullable = false) private String firstName;
-
-    @Column(name = "uuid", nullable = false)
+    @Column(name="uuid",nullable = false)
     private String uuid;
+    @Column(name = "firstname",nullable = false)
+    private String firstName;
 
-    @Column(name = "lastname", nullable = false) private String lastname;
+    @Column(name = "lastname",nullable = false)
+    private String lastName;
 
-    @Column(name = "email", nullable = false) private String emailAddress;
+    @Column(name = "email",nullable = false)
+    private String emailAddress;
 
-    @Column(name = "password", nullable = false) private String password;
+    @Column(name = "password",nullable = false)
+    private String password;
 
-    @Column(name = "contact_number", nullable = false) private String contactNumber;
+    @Column(name = "contact_number",nullable = false)
+    private String contactNumber;
 
-    @Column(name = "salt", nullable = false) private String salt;
+    @Column(name = "salt",nullable = false)
+    private String salt;
 
-    public CustomerEntity() {
+    //constructor
+    public CustomerEntity(){
 
     }
-
-    public Integer getId() {
+    //getter setter of all the variables
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getFirstName() {
@@ -44,12 +71,12 @@ public class CustomerEntity implements Serializable {
         this.firstName = firstName;
     }
 
-    public String getLastname() {
-        return lastname;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmailAddress() {
@@ -84,14 +111,14 @@ public class CustomerEntity implements Serializable {
         this.salt = salt;
     }
 
-    public String getUuid() {
-        return uuid;
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(this).hashCode();
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
+
 }
-
-
-

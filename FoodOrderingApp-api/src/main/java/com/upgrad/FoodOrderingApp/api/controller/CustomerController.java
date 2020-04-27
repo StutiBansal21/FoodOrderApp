@@ -1,108 +1,117 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
-
+import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerServiceImpl;
+import com.upgrad.FoodOrderingApp.service.dao.CustomerDao;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
+import com.upgrad.FoodOrderingApp.service.exception.UpdateCustomerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.upgrad.FoodOrderingApp.api.model.*;
 
+import javax.naming.AuthenticationException;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
-
-@RestController
-@RequestMapping("/customer")
+@RestController//returns the object and object data is directly written into HTTP response as JSON
+@CrossOrigin//for the future use if we want t0 link the frontend to the backend and to avoid the CORS issue
+@RequestMapping("/")//to tell where the mapping in the db has to go
 public class CustomerController {
 
-
     @Autowired
+//control over where and how autowiring should be done in the code .Can be on constructors, variables class and its objects
     private CustomerService customerService;
 
-    @RequestMapping(method = RequestMethod.POST, path = "/signup", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SignupCustomerResponse> signUp(@RequestBody final SignupCustomerRequest signupCustomerRequest)
-            throws SignUpRestrictedException {
+    @Autowired
+    private CustomerDao customerDao;
 
-        //validate this request.
+    @Autowired
+    private CustomerServiceImpl customerServiceImpl;
 
-        if(signupCustomerRequest.getLastName().isEmpty()) {
-            throw new SignUpRestrictedException("SGR -005", "Last name cannot be empty");
+    //this is the signup endpoint function definition which is of POST type
+    @RequestMapping(method = RequestMethod.POST, path = "/customer/signup", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//api takes the input as Json format and output as Json format
+    public ResponseEntity<SignupCustomerResponse> signUp(final SignupCustomerRequest signupCustomerRequest) throws SignUpRestrictedException {
+
+        final CustomerEntity customerEntity = new CustomerEntity();//which is going to be saved in db yeh sb store hoga db mei.
+        customerEntity.setUuid(UUID.randomUUID().toString());//this generates random uuid automatically .the intellij has the function
+        customerEntity.setFirstName(signupCustomerRequest.getFirstName());//to set the firstname in the db
+        customerEntity.setLastName(signupCustomerRequest.getLastName());//set the lastname in the db
+        customerEntity.setContactNumber(signupCustomerRequest.getContactNumber());//set the contact number
+        customerEntity.setEmailAddress(signupCustomerRequest.getEmailAddress());//set the email id
+        customerEntity.setPassword(signupCustomerRequest.getPassword());//set the password
+        customerEntity.setSalt("1234");//salt is for password cryptography and security reasons.
+
+        try {
+            final CustomerEntity responseCustomer = customerService.saveCustomer(customerEntity, signupCustomerRequest.getFirstName(), signupCustomerRequest.getLastName(), signupCustomerRequest.getContactNumber(), signupCustomerRequest.getEmailAddress(), signupCustomerRequest.getPassword());//if everything is f9 then this will bring some output response
+            SignupCustomerResponse signupCustomerResponse = new SignupCustomerResponse();
+            signupCustomerResponse.setId(responseCustomer.getUuid());
+            signupCustomerResponse.setStatus("CUSTOMER SUCCESSFULLY REGISTERED");//if no issues then customer is stored in db and this msg displayed
+            return new ResponseEntity<SignupCustomerResponse>(signupCustomerResponse, HttpStatus.CREATED);
+        } catch (SignUpRestrictedException e) {
+            SignupCustomerResponse signupCustomerResponse = new SignupCustomerResponse().id(e.getCode()).status(e.getErrorMessage());
+            return new ResponseEntity<SignupCustomerResponse>(signupCustomerResponse, HttpStatus.BAD_REQUEST);//if issue the exception is thrown and the return is from the exception classes
         }
-
-        CustomerEntity customerEntity = new CustomerEntity();
-        customerEntity.setContactNumber("12345cds6237890");
-        customerEntity.setEmailAddress("testing@teasst.com");
-        customerEntity.setLastname("lsatname");
-        customerEntity.setFirstName("first");
-        customerEntity.setPassword("password");
-        customerEntity.setSalt("salt");
-        customerEntity.setUuid(UUID.randomUUID().toString());
-
-        final CustomerEntity responseCustomer = customerService.saveCustomer(customerEntity);
-        SignupCustomerResponse signupCustomerResponse = new SignupCustomerResponse();
-        signupCustomerResponse.setId(responseCustomer.getUuid());
-        signupCustomerResponse.setStatus("Customer Registered");
-        return new ResponseEntity<SignupCustomerResponse>(signupCustomerResponse, HttpStatus.CREATED);
     }
 
+    //login endpoint functionality defined having method of post type
+    @RequestMapping(method = RequestMethod.POST, path = "/customer/login", produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<LoginResponse> login(@RequestHeader("authorization") final String authorization) throws AuthenticationFailedException {
+//bearer has the contactnumber:password which is encoded in base64 format which is then passed along
+        byte[] decodedBytes = Base64.getDecoder().decode(authorization.split("Basic ")[1]);//splits the bearer
+        String decodedString = new String(decodedBytes);
+        String decodeArr[] = decodedString.split(":");//splits contact number and password as in betwee the 2=string of them is :
+        try {
+            if (CustomerServiceImpl.validAuthFormat(authorization) == true) //if the function called holds true
+            {
+                final CustomerAuthEntity customerAuthEntity = customerServiceImpl.verifyAuthenticate(decodeArr[0], decodeArr[1]);//passing the contactnumber and password as array 0 and array 1
+                CustomerEntity customerEntity = customerAuthEntity.getCustomer();//return customer according to the query
+                if (customerEntity == null) {
+                    //if the returned customerEntity is null ie returns nulll then thsi exception with the error message is thrown
+                    throw new AuthenticationFailedException("ATH-002", "Invalid Credentials");
+                }
+                LoginResponse loginResponse = new LoginResponse().firstName(customerEntity.getFirstName()).lastName(customerEntity.getLastName()).contactNumber(customerEntity.getContactNumber()).emailAddress(customerEntity.getEmailAddress()).id(customerEntity.getUuid())
+                        .message("LOGGED IN SUCCESSFULLY"); // if all validations verified then customer login successfully
+                HttpHeaders headers = new HttpHeaders();
+                List<String> header = new ArrayList<>();
+                header.add("access-token");
+                headers.setAccessControlExposeHeaders(header);
+                headers.add("access-token", customerAuthEntity.getAccessToken());
+                return new ResponseEntity<LoginResponse>(loginResponse, headers, HttpStatus.OK);// if everything is verified then it return response and HTTPstatus.OK
+            } else { //if basic information for authentication is not provided in correct format then we throw this exception with an error message
+                throw new AuthenticationFailedException("ATH-003", "Incorrect format of decoded customer name and password");
+            }
+        } catch (AuthenticationFailedException e) {
+            LoginResponse loginresponse = new LoginResponse().id(e.getCode()).message(e.getErrorMessage());
+            return new ResponseEntity<LoginResponse>(loginresponse, HttpStatus.UNAUTHORIZED);
 
-    @RequestMapping(method = RequestMethod.POST, path = "/login", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<LoginResponse> login(@RequestHeader("authorization") final String auth) throws AuthenticationFailedException {
+        }
+    }
 
-        //call to service to login
-
-        //Use https://www.base64encode.org/ to create the encoded string
-
-        //pass that encoded string in request header.
-
-        //decode that string and get the password and contact number(On upgrad's portal there is a seperate lecture for this, see that one).
-
-        // After decoding it check if that contact number exist in database if not then throw exception otherwise encrypt the decoded
-        // password and check with password if matched then create a random string
-
-        // create one more table customerAuthEntity and store this string and current time inside that table and customer also.
-
-        //set that random string in response headers and return it in response.
-
-        byte[] dc= Base64.getDecoder().decode(auth.split("basic")[1]);
-        String dt = new String(dc);
-        String[] decodearr = dt.split(":");
-          CustomerServiceImpl obj = new CustomerServiceImpl();
-         if(CustomerServiceImpl.validAuthFormat(auth)== true)
-         {
-          final CustomerAuthEntity custAuthToken =obj.verifyAuthenticate(decodearr[0],decodearr[1]);
-          CustomerEntity customerentity = custAuthToken.getCustomer();
-          LoginResponse loginresponse =new LoginResponse()
-                  .firstName(customerentity.getFirstName())
-                  .lastName(customerentity.getLastname())
-                  .contactNumber((customerentity.getContactNumber()))
-                  .emailAddress(customerentity.getEmailAddress())
-                  .id(customerentity.getUuid())
-                  .message("LOGGED IN SUCCESSFULLY");
-
-             HttpHeaders headers =new HttpHeaders();
-             List<String> header =new ArrayList<>();
-             header.add("access-token");
-             headers.setAccessControlExposeHeaders(header);
-             headers.add("access-token",custAuthToken.getAccessToken());
-             return new ResponseEntity<LoginResponse>(loginresponse,headers,HttpStatus.OK);
-         }
-         else
-         {
-             throw new AuthenticationFailedException("ATH-003","Incorrect form of decoded customer name and password");
-         }
-       // LoginResponse loginResponse = new LoginResponse();
-        //return new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
-
+    //this is logout endpoint method definition whch is of post type and throws AuthorizationFailed exception
+    @RequestMapping(method = RequestMethod.POST, path = "/customer/logout", produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<LogoutResponse> logout(@RequestHeader("accessToken") final String accessToken) throws AuthorizationFailedException {
+        try {
+            String[] aToken = accessToken.split("Bearer ");//splits the accesstoken which we got during the login and then checks the condtitions
+            CustomerAuthEntity customerAuthEntity = customerServiceImpl.logout(aToken[1]);//method logout is called which holds the business logic
+            // if every validation fullfill then the we send this message to customer
+            LogoutResponse response = new LogoutResponse().id(customerAuthEntity.getUuid()).message("LOGGED OUT SUCCESSFULLY");
+            return new ResponseEntity<LogoutResponse>(response, HttpStatus.OK);
+        } catch (AuthorizationFailedException e)//if above validations conditions dont hold true then exception is raised which is caught in this block
+        {
+            LogoutResponse logoutResponse = new LogoutResponse().id(e.getCode()).message(e.getErrorMessage());
+            return new ResponseEntity<LogoutResponse>(logoutResponse, HttpStatus.BAD_REQUEST);
+        }
     }
 }

@@ -23,6 +23,7 @@ public class AddressDaoImpl implements AddressDao{
     @PersistenceContext
     private EntityManager entityManager;
 
+    //function
     @Override
     public AddressEntity saveAddress(AddressEntity addressEntity) {
         entityManager.persist(addressEntity);

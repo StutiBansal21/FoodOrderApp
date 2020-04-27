@@ -1,3 +1,4 @@
+/*
 package com.upgrad.FoodOrderingApp.service.businness;
 
 import com.upgrad.FoodOrderingApp.service.dao.AddressDao;
@@ -12,6 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+
 
 import java.util.List;
 
@@ -35,6 +40,31 @@ public class AddressServiceImpl implements AddressService {
         addressDao.saveAddress(addressEntity);
         saveCustomerAddress(customerAddressEntity);
         return  addressEntity;
+    }
+
+    @Transactional
+    public AddressEntity saveAddress(AddressEntity addressEntity,final String stateUuid,final CustomerEntity customerEntity) throws SaveAddressException,AddressNotFoundException
+    {
+      if(!checkFields(addressEntity,stateUuid))
+      {
+        throw  new SaveAddressException("SAR-001","No field can be empty");
+      }
+      else if(!verifyPincode(addressEntity))
+      {
+          throw new SaveAddressException("SAR-002","Invalid pincode");
+      }
+      else
+      {
+        StateEntity stateEntity =  getState(stateUuid);
+        if(stateEntity == null)
+        {
+            throw new AddressNotFoundException("ANF-002","No state by this id");
+        }
+        addressEntity.setState(stateEntity.getId());
+        addressEntity =addressDao.saveAddress(addressEntity);
+
+
+      }
     }
 
 
@@ -66,3 +96,4 @@ public class AddressServiceImpl implements AddressService {
 
 
 }
+*/

@@ -4,15 +4,11 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
-/**
- * CustomerAuthEntity class contains all the attributes to be mapped to all the fields in customer_auth table in the database.
- * All the annotations which are used to specify all the constraints to the columns in the database must be correctly implemented.
- */
 @Entity
 @Table(name = "customer_auth")
 @NamedQueries({
-        @NamedQuery(name = "customerByuuid", query = "select c from CustomerAuthEntity c where c.uuid = :uuid"),
-        @NamedQuery(name = "customerAuthByAccesstoken", query = "select c from CustomerAuthEntity c where c.accessToken = :accesstoken")
+        // @NamedQuery(name = "searchByUuid", query = "select c from CustomerAuthEntity c where c.uuid = :uuid"),
+        @NamedQuery(name = "customerAuthByAccesstoken", query = "select c from CustomerAuthEntity c where c.accessToken = :accessToken")
 })
 public class CustomerAuthEntity implements Serializable {
 
@@ -43,8 +39,7 @@ public class CustomerAuthEntity implements Serializable {
     public CustomerAuthEntity() {
     }
 
-    public CustomerAuthEntity(String uuid, CustomerEntity customer, String accessToken,ZonedDateTime expiresAt, ZonedDateTime loginAt, ZonedDateTime
-            logoutAt) {
+    public CustomerAuthEntity(String uuid, CustomerEntity customer, String accessToken,ZonedDateTime expiresAt,ZonedDateTime loginAt, ZonedDateTime logoutAt) {
         this.uuid = uuid;
         this.customer = customer;
         this.accessToken = accessToken;
