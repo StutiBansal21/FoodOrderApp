@@ -27,13 +27,13 @@ public class AddressController {
     @Autowired
     private AddressService addressService;
 
-    @RequestMapping(method = RequestMethod.POST, path = "/address", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+   /* @RequestMapping(method = RequestMethod.POST, path = "/address", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SaveAddressResponse> saveAddress(@RequestBody(required = false) final SaveAddressRequest saveAddressRequest, @RequestHeader("authorization") final String randomString) throws
             AuthorizationFailedException, SaveAddressException, AddressNotFoundException {
         //String access_token = authorization.split("Bearer ")[1];
 
         //validate the user first using this
-        CustomerEntity customerEntity = customerService.getCustomer(randomString);
+       // CustomerEntity customerEntity = customerService.getCustomer(randomString);
 
         final AddressEntity addressEntity = new AddressEntity();
 
@@ -53,13 +53,13 @@ public class AddressController {
         return new ResponseEntity<SaveAddressResponse>(saveAddressResponse, HttpStatus.CREATED);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/address/customer", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    /*@RequestMapping(method = RequestMethod.GET, path = "/address/customer", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<AddressListResponse> getAllAddresses(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
         String access_token = authorization.split("Bearer ")[1];
-        CustomerEntity customerEntity = customerService.getCustomer(access_token);
-        List<AddressEntity> addressEntityList  = addressService.getAllAddress(customerEntity);
+        //CustomerEntity customerEntity = customerService.getCustomer(access_token);
+        //List<AddressEntity> addressEntityList  = addressService.getAllAddress(customerEntity);
         AddressListResponse addressListResponse = new AddressListResponse();
-        for (AddressEntity addressEntity : addressEntityList){
+        //for (AddressEntity addressEntity : addressEntityList){
             AddressList addressList = new AddressList();
             addressList.setId(UUID.fromString(addressEntity.getUuid()));
             addressList.setLocality(addressEntity.getLocality());
@@ -74,5 +74,5 @@ public class AddressController {
         }
         return new ResponseEntity<AddressListResponse>(addressListResponse, HttpStatus.OK);
     }
-
+*/
 }

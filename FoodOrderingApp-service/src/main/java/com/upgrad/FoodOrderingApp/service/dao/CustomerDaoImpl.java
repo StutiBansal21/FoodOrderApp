@@ -6,6 +6,7 @@ import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
@@ -26,6 +27,43 @@ public class CustomerDaoImpl implements CustomerDao{
     {
         try {
             return entityManager.createNamedQuery("customerByContactNumber", CustomerEntity.class).setParameter("contactNumber", contactNumber).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+    public CustomerAuthEntity createAuthToken(CustomerAuthEntity customerAuthEntity)
+    {
+        this.entityManager.persist(customerAuthEntity);
+        return  customerAuthEntity;
+    }
+
+
+    public void updateCustomer(CustomerEntity updatedCustomerEntity) {
+        this.entityManager.merge(updatedCustomerEntity);
+    }
+
+    public  CustomerAuthEntity updateCustomer(final CustomerAuthEntity customerAuthEntity)
+    {
+        EntityTransaction entityTransaction=entityManager.getTransaction();
+        try
+        {
+            entityTransaction.begin();
+            entityManager.merge(customerAuthEntity);
+            entityTransaction.commit();
+            //System.out.println("customerAuthEntity updated with UUID: "+customerAuthEntity.getUuid());
+        }
+        catch (Exception e)
+        {
+            entityTransaction.rollback();
+            return null;
+        }
+         return customerAuthEntity;
+    }
+
+    public CustomerAuthEntity getAuthTokenByAccessToken(final String accessToken) {
+        try {
+            return entityManager.createNamedQuery("customerAuthByAccesstoken", CustomerAuthEntity.class).setParameter("accessToken", accessToken).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }

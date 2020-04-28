@@ -5,6 +5,7 @@ import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
+import com.upgrad.FoodOrderingApp.service.exception.UpdateCustomerException;
 
 public interface CustomerService {
 
@@ -13,6 +14,9 @@ public interface CustomerService {
     boolean checkEmailPattern(final CustomerEntity customerEntity);//signup method validator function
     boolean checkContactNumber(final CustomerEntity customerEntity);//signup method validator function
     boolean checkPassword(final CustomerEntity customerEntity);//signup method validator function
-
+    CustomerAuthEntity verifyAuthenticate(String contactNumber,String password)throws AuthenticationFailedException;//login method
+    //CustomerEntity getCustomer(String access_token) throws AuthorizationFailedException;//login method validator
+    //CustomerAuthEntity authorization(String access_token) throws AuthorizationFailedException;//logout method
+    CustomerEntity updateCustomerPassword(String accessToken,String oldPAssword,String newPAssword)throws AuthorizationFailedException, UpdateCustomerException, UpdateCustomerException;
 
 }

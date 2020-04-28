@@ -9,4 +9,8 @@ public interface CustomerDao {
     //CustomerEntity getCustomer(CustomerEntity customerEntity);
     CustomerEntity getCustomerByContactNumber(String contactNumber);
     //fetch the contactnumber se customer.if exist
+    //CustomerEntity getCustomer(String contactNumber);
+    //boolean getCustomer(boolean b);
+    CustomerAuthEntity getAuthTokenByAccessToken(String access_token);
+
 }
