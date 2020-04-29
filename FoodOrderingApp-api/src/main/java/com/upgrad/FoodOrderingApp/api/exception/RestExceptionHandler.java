@@ -2,6 +2,7 @@ package com.upgrad.FoodOrderingApp.api.exception;
 
 import com.upgrad.FoodOrderingApp.api.model.ErrorResponse;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
 import com.upgrad.FoodOrderingApp.service.exception.UpdateCustomerException;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,11 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(UpdateCustomerException.class)
     public ResponseEntity<ErrorResponse>updateCustomerException(UpdateCustomerException exc,WebRequest request){
+        return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()),HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<ErrorResponse>updateCustomerException(CategoryNotFoundException exc,WebRequest request){
         return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()),HttpStatus.UNAUTHORIZED);
     }
 }
