@@ -17,7 +17,7 @@ public class CustomerAuthEntity implements Serializable {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     @Column(name = "UUID", nullable = false)
     private String uuid;
@@ -28,7 +28,7 @@ public class CustomerAuthEntity implements Serializable {
 
     @Column(name = "customer_id")
     @NotNull
-    private int customerId;
+    private long customerId;
 
     @Column(name = "access_token",length = 500, nullable = false)
     private String accessToken;
@@ -80,11 +80,11 @@ public class CustomerAuthEntity implements Serializable {
     }
 */
 
-    public int getCustomerId() {
+    public long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(int customerId) {
+    public void setCustomerId(long customerId) {
         this.customerId = customerId;
     }
 

@@ -56,7 +56,8 @@ public class CustomerController {
             SignupCustomerResponse signupCustomerResponse = new SignupCustomerResponse();
             signupCustomerResponse.setId(responseCustomer.getUuid());
             signupCustomerResponse.setStatus("CUSTOMER SUCCESSFULLY REGISTERED");//if no issues then customer is stored in db and this msg displayed
-            return new ResponseEntity<SignupCustomerResponse>(signupCustomerResponse, HttpStatus.CREATED);
+            return new ResponseEntity<SignupCustomerResponse>(signupCustomerResponse,HttpStatus.CREATED);
+            //return new ResponseEntity<SignupCustomerResponse>(signupCustomerResponse, HttpStatus.OK);
             }
         catch(SignUpRestrictedException e) {
             SignupCustomerResponse signupCustomerResponse=new SignupCustomerResponse().id(e.getCode()).status(e.getErrorMessage());

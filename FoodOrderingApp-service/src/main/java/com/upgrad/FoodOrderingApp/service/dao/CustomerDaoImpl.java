@@ -40,7 +40,7 @@ public class CustomerDaoImpl implements CustomerDao{
             return list.get(0);
     }
 
-    public CustomerEntity searchById(final int id) {
+    public CustomerEntity searchById(final long id) {
 
         TypedQuery <CustomerEntity> query = entityManager.createQuery("SELECT c from CustomerEntity c where c.id = :id",
                 CustomerEntity.class);

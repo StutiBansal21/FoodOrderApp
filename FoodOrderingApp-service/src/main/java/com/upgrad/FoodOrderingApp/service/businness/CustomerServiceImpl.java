@@ -189,7 +189,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Transactional
-    public CustomerEntity searchById(final int id) {
+    public CustomerEntity searchById(final long id) {
         //runs the method according to the sql queries and returns the value/result of the query
         return customerDaoImpl.searchById(id);
     }
@@ -261,12 +261,12 @@ public class CustomerServiceImpl implements CustomerService {
             //if access token provided by the customer not exist in database
             throw new AuthorizationFailedException("ATHR-001","Customer is not logged in.");
         }
-        if(!isCustomerLoggedIn(accessToken)) //if the method returns false ie. there is no customer in the db  with the accessToken anymore
+        if(!isUserLoggedIn(accessToken)) //if the method returns false ie. there is no customer in the db  with the accessToken anymore
         {
             throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
         }
 
-        if(checkTokenExpiry(accessToken))//if the expiry time or the max login time has exceeded even though the customer was loggedin he/she gets automatically loggedout
+        if(checkExpiryOfToken(accessToken))//if the expiry time or the max login time has exceeded even though the customer was loggedin he/she gets automatically loggedout
         {
             throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
         }
@@ -291,7 +291,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
     // this function is used to verify the token of customer
     @Transactional
-    public boolean checkTokenExpiry(final String accessToken) {
+    public boolean checkExpiryOfToken(final String accessToken) {
        CustomerAuthEntity customerAuthEntity = customerAuthEntityDaoImpl.getAuthTokenByAccessToken(accessToken);
         if(customerAuthEntity == null) {
             return true;
@@ -305,7 +305,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Transactional
-    public boolean isCustomerLoggedIn(final String accessToken) {
+    public boolean isUserLoggedIn(final String accessToken) {
         //checking of the customer is still logged in or not
        CustomerAuthEntity customerAuthEntity = customerAuthEntityDaoImpl.getAuthTokenByAccessToken(accessToken);
         if(customerAuthEntity == null)

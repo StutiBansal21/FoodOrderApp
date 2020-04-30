@@ -26,7 +26,7 @@ public class CustomerEntity implements Serializable {
 @Id//member field below is the primary key of current entity.
 @Column(name = "id")//the name of the column of the table
 @GeneratedValue(strategy = GenerationType.IDENTITY)//configure the way of increment of the specified column(field)/how the primary key should be generated
-private int id;
+private long id;
 
 @Column(name="uuid",nullable = false)
 private String uuid;
@@ -54,11 +54,11 @@ public CustomerEntity(){
 
 }
 //getter setter of all the variables
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
