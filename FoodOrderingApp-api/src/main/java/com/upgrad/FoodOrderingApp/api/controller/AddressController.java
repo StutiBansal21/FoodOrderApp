@@ -35,7 +35,7 @@ public class AddressController {
 
 
     //saveAddress endpoint definition of POST type
-    @RequestMapping(path = "/address",method = RequestMethod.POST,produces= MediaType.APPLICATION_JSON_UTF8_VALUE,consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(path = "/address",method = RequestMethod.POST)  //,produces= MediaType.APPLICATION_JSON_UTF8_VALUE,consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SaveAddressResponse>saveAddress(@RequestBody SaveAddressRequest saveAddressRequest, @RequestHeader("accessToken") final String accessToken) throws AuthorizationFailedException, SaveAddressException,AddressNotFoundException, UpdateCustomerException {
         try{
          //if any of the input fields is empty then this exception is thrown

@@ -14,13 +14,13 @@ import java.io.Serializable;
         @NamedQuery(name = "getAddressByUUID", query = "select b from CustomerAddressEntity a inner join a.address b where " +
                 "b.uuid = :uuid")
 })*/
-@Entity
-@Table(name = "address")
+@Entity//specifies that the class is an entity and is mapped to a database table
+@Table(name = "address")//specifies the name of the database table to be used for mapping
 public class AddressEntity implements Serializable {
 
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id//specifies the primary key of an entity
+    @Column(name = "id")//the name of the column in the particular table
+    @GeneratedValue(strategy = GenerationType.IDENTITY)//provides for the specification of generation strategies for the values of primary keys.
     private long id;
 
     @Column(name = "uuid", nullable = false)

@@ -9,8 +9,8 @@ import java.io.Serializable;
         @NamedQuery(name = "getStateByUUID", query = "select s from StateEntity s where s.uuid =:uuid"),
         @NamedQuery(name = "getAllStates", query = "select s from StateEntity s")
 })*/
-@Entity
-@Table(name = "state")
+@Entity//specifies that the class is an entity and is mapped to a database table
+@Table(name = "state")//specifies the name of the database table to be used for mapping
 public class StateEntity implements Serializable {
 
     @Id

@@ -13,7 +13,7 @@ import java.io.Serializable;
 /*@NamedQuery(name = "userByAddress", query = "select a from CustomerAddressEntity a inner join a.address b where "
         +"b.uuid = :uuid")*/
 @Entity
-@Table(name = "customer_address")
+@Table(name = "customer_address")//specifies the name of the database table to be used for mapping
 public class CustomerAddressEntity implements Serializable {
 
     @Id
