@@ -5,22 +5,18 @@ import com.upgrad.FoodOrderingApp.service.entity.CustomerAddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AddressNotFoundException;
-import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SaveAddressException;
 
 import java.util.List;
 
-/*
- * This AddressService interface gives the list of all the service that exist in the address service implementation class.
- * Controller class will be calling the service methods by this interface.
- */
 public interface AddressService {
 
-    AddressEntity saveAddress(AddressEntity addressEntity, CustomerAddressEntity customerAddressEntity) throws
-            SaveAddressException;
-    AddressEntity getAddressByUUID(String addressId, CustomerEntity customerEntity) throws AuthorizationFailedException,
-            AddressNotFoundException;
-    List<AddressEntity> getAllAddress(CustomerEntity customer);
-    StateEntity getState(String stateUUID);
-
+    AddressEntity saveAddress(AddressEntity addressEntity, final String stateUuid, final CustomerEntity customerEntity) throws SaveAddressException, AddressNotFoundException;
+    AddressEntity deleteAddress(AddressEntity addressEntity, CustomerAddressEntity customerAddressEntity);
+    //StateEntity getStateIdByUuid(final String stateUuid) throws AddressNotFoundException ;
+    List<AddressEntity> getAllAddresses(final CustomerEntity customerEntity);
+    //String getStateNameByStateId(final long stateId);
+    //AddressEntity searchByUuid(final String addressUuid);
+    //CustomerAddressEntity searchByAddressId(final long addressId);
+    //AddressEntity getAddressById(final Long addressId);
 }

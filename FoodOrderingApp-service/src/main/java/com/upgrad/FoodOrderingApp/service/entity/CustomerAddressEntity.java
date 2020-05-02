@@ -9,52 +9,46 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 
+
+/*@NamedQuery(name = "userByAddress", query = "select a from CustomerAddressEntity a inner join a.address b where "
+        +"b.uuid = :uuid")*/
 @Entity
 @Table(name = "customer_address")
-@NamedQuery(name = "userByAddress", query = "select a from CustomerAddressEntity a inner join a.address b where "
-        +"b.uuid = :uuid")
 public class CustomerAddressEntity implements Serializable {
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private long id;
 
-    @ManyToOne
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "customer_id")
-    @NotNull
-    private CustomerEntity customer;
+    @Column(name = "customer_id",nullable = false)
+    private long customerId;
 
-    @OneToOne
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "address_id")
-    @NotNull
-    private AddressEntity address;
+    @Column(name = "address_id",nullable = false)
+    private long addressId;
 
-    public CustomerAddressEntity() {
-    }
-
-    public Integer getId() {
+    //getter and setter methods of the variables
+    public long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public CustomerEntity getCustomer() {
-        return customer;
+    public long getCustomerId() {
+        return customerId;
     }
 
-    public void setCustomer(CustomerEntity customer) {
-        this.customer = customer;
+    public void setCustomerId(long customerId) {
+        this.customerId = customerId;
     }
 
-    public AddressEntity getAddress() {
-        return address;
+    public long getAddressId() {
+        return addressId;
     }
 
-    public void setAddress(AddressEntity address) {
-        this.address = address;
+    public void setAddressId(long addressId) {
+        this.addressId = addressId;
     }
 }

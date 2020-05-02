@@ -3,37 +3,43 @@ package com.upgrad.FoodOrderingApp.service.entity;
 import javax.persistence.*;
 import java.io.Serializable;
 
-@Entity
-@Table(name = "state")
-@NamedQueries({
+
+/*@NamedQueries({
+
         @NamedQuery(name = "getStateByUUID", query = "select s from StateEntity s where s.uuid =:uuid"),
         @NamedQuery(name = "getAllStates", query = "select s from StateEntity s")
-})
+})*/
+@Entity
+@Table(name = "state")
 public class StateEntity implements Serializable {
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private long id;
 
-    @Column(name = "UUID", length = 64, nullable = false)
+    @Column(name = "uuid", nullable = false)
     private String uuid;
 
     @Column(name = "state_name", nullable = false)
     private String stateName;
 
+
+    //constructor
     public StateEntity() {
     }
 
-    public StateEntity(String uuid, String stateName) {
+    public StateEntity(long id, String uuid, String stateName) {
+        this.id = id;
         this.uuid = uuid;
         this.stateName = stateName;
     }
-
-    public Integer getId() {
+    //getter and setter functions
+    public long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(long id) {
         this.id = id;
     }
 

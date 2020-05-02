@@ -1,15 +1,17 @@
 package com.upgrad.FoodOrderingApp.service.entity;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
+
+/*@NamedQueries({
+       // @NamedQuery(name = "searchByUuid", query = "select c from CustomerAuthEntity c where c.uuid = :uuid"),
+        @NamedQuery(name = "customerAuthByAccesstoken", query = "select c from CustomerAuthEntity c where c.accessToken = :accessToken")
+})*/
 @Entity
 @Table(name = "customer_auth")
-@NamedQueries({
-        // @NamedQuery(name = "searchByUuid", query = "select c from CustomerAuthEntity c where c.uuid = :uuid"),
-        @NamedQuery(name = "customerAuthByAccesstoken", query = "select c from CustomerAuthEntity c where c.accessToken = :accessToken")
-})
 public class CustomerAuthEntity implements Serializable {
 
     @Id
@@ -17,12 +19,16 @@ public class CustomerAuthEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "UUID", length = 64, nullable = false)
+    @Column(name = "UUID", nullable = false)
     private String uuid;
 
-    @ManyToOne
+ /*   @ManyToOne
     @JoinColumn(name = "customer_id")
-    private CustomerEntity customer;
+    private CustomerEntity customer;*/
+
+    @Column(name = "customer_id")
+    @NotNull
+    private long customerId;
 
     @Column(name = "access_token",length = 500, nullable = false)
     private String accessToken;
@@ -36,23 +42,23 @@ public class CustomerAuthEntity implements Serializable {
     @Column(name = "logout_at")
     private ZonedDateTime logoutAt;
 
-    public CustomerAuthEntity() {
-    }
+    /*  public CustomerAuthEntity() {}
+     */
 
-    public CustomerAuthEntity(String uuid, CustomerEntity customer, String accessToken,ZonedDateTime expiresAt,ZonedDateTime loginAt, ZonedDateTime logoutAt) {
+  /*  public CustomerAuthEntity(String uuid, CustomerEntity customer, String accessToken,ZonedDateTime expiresAt,ZonedDateTime loginAt, ZonedDateTime logoutAt) {
         this.uuid = uuid;
         this.customer = customer;
         this.accessToken = accessToken;
         this.expiresAt = expiresAt;
         this.loginAt = loginAt;
         this.logoutAt = logoutAt;
-    }
+    }*/
 
     public long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -64,12 +70,22 @@ public class CustomerAuthEntity implements Serializable {
         this.uuid = uuid;
     }
 
-    public CustomerEntity getCustomer() {
+   /* public CustomerEntity getCustomer() {
         return customer;
     }
 
+
     public void setCustomer(CustomerEntity customer) {
         this.customer = customer;
+    }
+*/
+
+    public long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(long customerId) {
+        this.customerId = customerId;
     }
 
     public String getAccessToken() {

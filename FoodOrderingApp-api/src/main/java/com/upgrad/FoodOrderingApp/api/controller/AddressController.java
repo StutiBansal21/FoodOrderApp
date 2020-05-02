@@ -1,140 +1,192 @@
-/*
 package com.upgrad.FoodOrderingApp.api.controller;
 
-import com.upgrad.FoodOrderingApp.service.businness.AddressService;
-import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
+import com.upgrad.FoodOrderingApp.api.model.*;
+import com.upgrad.FoodOrderingApp.service.businness.AddressServiceImpl;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerServiceImpl;
 import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
+import com.upgrad.FoodOrderingApp.service.entity.CustomerAddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AddressNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SaveAddressException;
+import com.upgrad.FoodOrderingApp.service.exception.UpdateCustomerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.upgrad.FoodOrderingApp.api.model.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-
-@RestController
+@RestController//returns the object and object data is directly written into HTTP response as JSON
+@CrossOrigin//for resolving the CORS issue when integrating the frontend and the backend
+@RequestMapping("/")//to tell where the mapping in the db has to go
 public class AddressController {
 
-    @Autowired
-    private CustomerService customerService;
-
-    @Autowired
+    @Autowired//control over where and how autowiring should be done in the code .Can be on constructors, variables class and its objects
     private CustomerServiceImpl customerServiceImpl;
 
     @Autowired
-    private AddressService addressService;
-
-    @RequestMapping(method = RequestMethod.POST, path = "/address", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public <saveAddressResponse> ResponseEntity<SaveAddressResponse> saveAddress(@RequestBody(required = false) final SaveAddressRequest saveAddressRequest, @RequestHeader("authorization") final String randomString) throws
-            AuthorizationFailedException, SaveAddressException, AddressNotFoundException {
-      */
-/*  String authorization = null;
-        String access_token = authorization.split("Bearer ")[1];
-
-        //validate the user first using this
-        CustomerEntity customerEntity = customerService.getCustomer(randomString);
-
-        final AddressEntity addressEntity = new AddressEntity();
-
-        addressEntity.setFlatBuilNo(saveAddressRequest.getFlatBuildingName());
-        addressEntity.setLocality(saveAddressRequest.getLocality());
-        addressEntity.setCity(saveAddressRequest.getCity());
-        addressEntity.setPincode(saveAddressRequest.getPincode());
-        // addressEntity.setState(addressService.getStateByUUID(saveAddressRequest.getStateUuid()));
-        addressEntity.setUuid(UUID.randomUUID().toString());
-
-        final CustomerAddressEntity customerAddressEntity = new CustomerAddressEntity();
-        customerAddressEntity.setAddress(addressEntity);
-        customerAddressEntity.setCustomer(customerEntity);
-
-        final AddressEntity createdAddressEntity = addressService.saveAddress(addressEntity,customerAddressEntity);
-        SaveAddressResponse saveAddressResponse = new SaveAddressResponse().id(createdAddressEntity.getUuid()).status("ADDRESS SUCCESSFULLY REGISTERED");
-        return new ResponseEntity<SaveAddressResponse>(saveAddressResponse, HttpStatus.CREATED);*//*
+    private AddressServiceImpl addressServiceImpl;
 
 
-        try
-        {
-            CustomerEntity customerEntity = CustomerServiceImpl.getCustomer(randomString);
-            if(customerEntity == null) {
-                throw new AuthorizationFailedException("ATHR-001", "Customer is not logged in.");
-            }
-            if(!customerServiceImpl.checkIsCustomerLoggedIn(randomString))
+    //saveAddress endpoint definition of POST type
+    @RequestMapping(path = "/address",method = RequestMethod.POST,produces= MediaType.APPLICATION_JSON_UTF8_VALUE,consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<SaveAddressResponse>saveAddress(@RequestBody SaveAddressRequest saveAddressRequest, @RequestHeader("accessToken") final String accessToken) throws AuthorizationFailedException, SaveAddressException,AddressNotFoundException, UpdateCustomerException {
+        try{
+            //if any of the input fields is empty then this exception is thrown
+            if(saveAddressRequest.getStateUuid().isEmpty() || saveAddressRequest.getPincode().isEmpty()|| saveAddressRequest.getFlatBuildingName().isEmpty() || saveAddressRequest.getLocality().isEmpty() || saveAddressRequest.getCity().isEmpty())
             {
-                throw new AuthorizationFailedException("ATHR-002","Customer is logged out.Log in again to access this endpoint.");
+                throw new SaveAddressException("SAR-001", "No field can be empty");
             }
-            if(customerServiceImpl.verifyTokenExpiry(randomString))
+            // Getting the CustomerEntity object using the accessToken.
+            CustomerEntity customerEntity=customerServiceImpl.getCustomer(accessToken);
+            if(customerEntity==null)//if the accessToken is not in db
             {
-                throw new AuthorizationFailedException("ATHR-002","Log in again to access this endpoint.")
+                throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
             }
-
-            AddressEntity addressEntity = new AddressEntity();
-            addressEntity.setUuid(UUID.randomUUID().toString());
-            addressEntity.setFlatBuilNo(saveAddressRequest.getFlatBuildingName());
-            addressEntity.setLocality(saveAddressRequest.getLocality());
-            addressEntity.setCity(saveAddressRequest.getCity());
-            addressEntity.setPincode(saveAddressRequest.getPincode());
-
-            String stateUuid =saveAddressRequest.getStateUuid();
-            addressServiceImpl.saveAddress(addressEntity,stateUuid,customerEntity);
-
-            SaveAddressResponse saveAddressResponse =new SaveAddressResponse()
-                    .id(addressEntity.getUuid())
-                    .status("ADDRESS SUCCESSFULLY REGISTERED");
-            return new ResponseEntity<SaveAddressResponse>(saveAddressResponse,HttpStatus.CREATED);
+            if(!customerServiceImpl.isUserLoggedIn(accessToken))
+            {
+                //if the accessToken states that the customer has already logged out
+                throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+            }
+            if(customerServiceImpl.checkExpiryOfToken(accessToken))
+            {
+                //if the customer has not logged out but the max time limit to stay logged in has exceeded.
+                throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+            }
+            AddressEntity addressEntity=new AddressEntity();// Creating an empty AddressEntity object.
+            //setting the values in the AddressEntity in the address table
+            addressEntity.setUuid(UUID.randomUUID().toString());//this generates UUID in the db table
+            addressEntity.setFlatBuilNumber(saveAddressRequest.getFlatBuildingName());//setting the flat,building value in the table
+            addressEntity.setLocality(saveAddressRequest.getLocality());//setting the locality
+            addressEntity.setCity(saveAddressRequest.getCity());//setting the city in the table
+            addressEntity.setPincode(saveAddressRequest.getPincode());//setting the pincode according to the constraints
+            String stateUuid=saveAddressRequest.getStateUuid();//the stateUuid is taken from the State table
+            addressServiceImpl.saveAddress(addressEntity,stateUuid,customerEntity);//the logic of the saveAddress
+            //if all conditions are met and no issues found then save the data in the table
+            SaveAddressResponse response=new SaveAddressResponse().id(addressEntity.getUuid()).status("ADDRESS SUCCESSFULLY REGISTERED");
+            return new ResponseEntity<SaveAddressResponse>(response, HttpStatus.CREATED);
         }
-        catch (AuthorizationFailedException afe)
+        catch (AuthorizationFailedException e)//if there exists exception in the table
         {
-            SaveAddressResponse saveAddressResponse =new SaveAddressResponse()
-                    .id(afe.getCode())
-                    .status(afe.getErrorMessage());
-            return new ResponseEntity<SaveAddressResponse>(saveAddressResponse,HttpStatus.BAD_REQUEST);
+            //throw the exception
+            SaveAddressResponse errorResponse=new SaveAddressResponse().id(e.getCode()).status(e.getErrorMessage());
+            return new ResponseEntity<SaveAddressResponse>(errorResponse,HttpStatus.BAD_REQUEST);
         }
-        catch (SaveAddressException sae)
+        catch (SaveAddressException e)
         {
-            SaveAddressResponse saveAddressResponse = new SaveAddressResponse().
-                    id(sae.getCode())
-                    .status(sae.getErrorMessage());
-            return new ResponseEntity<SaveAddressResponse>(saveAddressResponse,HttpStatus.BAD_REQUEST);
+            SaveAddressResponse errorResponse=new SaveAddressResponse().id(e.getCode()).status(e.getErrorMessage());
+            return new ResponseEntity<SaveAddressResponse>(errorResponse,HttpStatus.BAD_REQUEST);
         }
         catch (AddressNotFoundException e)
         {
-            SaveAddressResponse saveAddressResponse = new SaveAddressResponse()
-                    .id(e.getCode())
-                    .status(e.getErrorMessage());
-            return new ResponseEntity<SaveAddressResponse>(saveAddressResponse,HttpStatus.BAD_REQUEST);
+            SaveAddressResponse errorResponse=new SaveAddressResponse().id(e.getCode()).status(e.getErrorMessage());
+            return new ResponseEntity<SaveAddressResponse>(errorResponse,HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
+    //getAddress From the db table endpoint definition which is of GET type
+    @RequestMapping(method = RequestMethod.GET,value = "/address/customer",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity getAllAddress(@RequestHeader("accessToken") String accessToken){
+        try {
+            CustomerEntity customerEntity=customerServiceImpl.getCustomer(accessToken);
+
+            if(customerEntity==null)
+            {
+                //if the accessToken doesnt exist in the db table
+                throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+            }
+            if(!customerServiceImpl.isUserLoggedIn(accessToken))
+            {
+                //if the accessToken states that the customer has already logged out
+                throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+            }
+            if(customerServiceImpl.checkExpiryOfToken(accessToken))
+            {
+                //if the customer has not logged out but the max time limit to stay logged in has exceeded.
+                throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+            }
+            //getting the object list of AddressEntity
+            List<AddressEntity> addressEntityList=addressServiceImpl.getAllAddresses(customerEntity);
+            List<AddressList> newAddressEntityList=new ArrayList<>();//empty AddressList
+
+            // Creating an AddressListState object.
+            for(AddressEntity addressEntity:addressEntityList){
+                AddressListState addressListState=new AddressListState().id(UUID.fromString(addressEntity.getUuid())).stateName(addressServiceImpl.getStateNameByStateId(addressEntity.getId()));
+                // Creating an AddressList object.
+                AddressList addressList=new AddressList().id(UUID.fromString(addressEntity.getUuid())).flatBuildingName(addressEntity.getFlatBuilNumber()).locality(addressEntity.getLocality()).city(addressEntity.getCity()).state(addressListState).pincode(addressEntity.getPincode());
+                newAddressEntityList.add(addressList);//adding AddressList object to the list.
+            }
+            AddressListResponse addressListResponse=new AddressListResponse().addresses(newAddressEntityList);
+            return new ResponseEntity(addressListResponse,HttpStatus.OK);
+        }
+        catch (AuthorizationFailedException e)
+        {
+            ErrorResponse response=new ErrorResponse().code(e.getCode()).message(e.getErrorMessage());
+            return new ResponseEntity(response,HttpStatus.BAD_REQUEST);
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/address/customer", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<AddressListResponse> getAllAddresses(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
-        String access_token = authorization.split("Bearer ")[1];
-        CustomerEntity customerEntity = customerService.getCustomer(access_token);
-        List<AddressEntity> addressEntityList  = addressService.getAllAddress(customerEntity);
-        AddressListResponse addressListResponse = new AddressListResponse();
-        for (AddressEntity addressEntity : addressEntityList){
-            AddressList addressList = new AddressList();
-            addressList.setId(UUID.fromString(addressEntity.getUuid()));
-            addressList.setLocality(addressEntity.getLocality());
-            addressList.setCity(addressEntity.getCity());
-            addressList.setFlatBuildingName(addressEntity.getFlatBuilNo());
-            addressList.setPincode(addressEntity.getPincode());
-            AddressListState addressListState = new AddressListState();
-            addressListState.setId(UUID.fromString(addressEntity.getState().getUuid()));
-            addressListState.setStateName(addressEntity.getState().getStateName());
-            addressList.setState(addressListState);
-            addressListResponse.addAddressesItem(addressList);
-        }
-        return new ResponseEntity<AddressListResponse>(addressListResponse, HttpStatus.OK);
-    }
+    //deleteAddress endpoint definition with DELETE type method
+    @RequestMapping(value = "/address/{address_id}",method=RequestMethod.DELETE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity deleteAddress(@PathVariable("address_id")final String addressUuid,@RequestHeader("accessToken")final String accessToken)
+    {
+        try {
+            boolean check=false;//creating a flag to check the values
+            CustomerEntity customerEntity=customerServiceImpl.getCustomer(accessToken);
+            if(customerEntity == null) {
+                //if the accessToken doesnt exist in the db table
+                throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+            }
+            if(!customerServiceImpl.isUserLoggedIn(accessToken)) {
+                //if the accessToken states that the customer has already logged out
+                throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+            }
+            if(customerServiceImpl.checkExpiryOfToken(accessToken)) {
+                //if the customer has not logged out but the max time limit to stay logged in has exceeded.
+                throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+            }
+            for(AddressEntity address : customerEntity.getAddress()){
+                if(address.getUuid().equalsIgnoreCase(addressUuid))
+                    check = true;
+            }
+            //if(addressUuid.length()==0)//required hai
+            if(addressUuid.isEmpty())
+            {
+                throw new AddressNotFoundException("ANF-005", "Address id can not be empty");
+            }
+            AddressEntity addressEntity=addressServiceImpl.searchByUuid(addressUuid);
+            CustomerAddressEntity customerAddressEntity=addressServiceImpl.searchByAddressId(addressEntity.getId());
 
+            //if(customerAddressEntity.getCustomerId()!=customerEntity.getId())//nhi chl rhi
+            if(!check)
+            {
+                //if the customer id of the table doesnt match with the id of the accessToken customer then this exception is thrown
+                throw new AuthorizationFailedException("ATHR-004", "You are not authorized to view/update/delete any one else's address.");
+            }
+            if(addressEntity == null)//nhi chl rhi
+            {
+                throw new AddressNotFoundException("ANF-003", "No address by this id");
+            }
+            addressServiceImpl.deleteAddress(addressEntity,customerAddressEntity);// Getting the AddressEntity object using the addressUuid.
+            DeleteAddressResponse response=new DeleteAddressResponse().id(UUID.fromString(addressEntity.getUuid())).status("ADDRESS DELETED SUCCESSFULLY");
+            return new ResponseEntity<DeleteAddressResponse>(response,HttpStatus.OK);
+
+        } catch (AuthorizationFailedException e) {
+            //if some constraints are not followed exception is thrown which is caught by catch block
+            ErrorResponse errorResponse=new ErrorResponse().code(e.getCode()).message(e.getErrorMessage());
+            return new ResponseEntity(errorResponse,HttpStatus.BAD_REQUEST);
+        }
+        catch (AddressNotFoundException e) {
+            ErrorResponse errorResponse=new ErrorResponse().code(e.getCode()).message(e.getErrorMessage());
+            return new ResponseEntity(errorResponse,HttpStatus.BAD_REQUEST);
+        }
+
+    }
 
 }
-*/
+

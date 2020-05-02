@@ -15,8 +15,9 @@ public interface CustomerService {
     boolean checkContactNumber(final CustomerEntity customerEntity);//signup method validator function
     boolean checkPassword(final CustomerEntity customerEntity);//signup method validator function
     CustomerAuthEntity verifyAuthenticate(String contactNumber,String password)throws AuthenticationFailedException;//login method
-    //CustomerEntity getCustomer(String access_token) throws AuthorizationFailedException;//login method validator
+    CustomerEntity getCustomer(final String accessToken) throws AuthorizationFailedException;//login method validator
     //CustomerAuthEntity authorization(String access_token) throws AuthorizationFailedException;//logout method
-    CustomerEntity updateCustomerPassword(String accessToken,String oldPAssword,String newPAssword)throws AuthorizationFailedException, UpdateCustomerException, UpdateCustomerException;
-
+    CustomerAuthEntity logout(final String accesstoken)throws AuthorizationFailedException;//logout
+    //public CustomerEntity getCustomer (final String accessToken) throws AuthorizationFailedException;
+    CustomerEntity updateCustomerPassword(String oldPassword,String newPassword,CustomerEntity customerEntity)throws UpdateCustomerException;
 }

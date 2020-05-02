@@ -6,24 +6,31 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-@Entity//specifies that the class is an entity and is mapped to a database table
+/*@Entity//specifies that the class is an entity and is mapped to a database table
 @Table(name="CUSTOMER")//tells us in which table in the database we have to go
 @NamedQueries(
         {
-                //statically defined query with a predefined unchangeable query string.
-                @NamedQuery(name = "customerByContactNumber", query = "select u from CustomerEntity u where u.contactNumber =:contactNumber")
+              //statically defined query with a predefined unchangeable query string.
+                @NamedQuery(name = "customerByContactNumber", query = "select u from CustomerEntity u where u.contactNumber =:contactNumber"),
+                @NamedQuery(name = "searchById",query = "Select c from CustomerEntity c where c.id = :id"),
+                @NamedQuery(name = "UserQueryByPassword",query = "select c from CustomerEntity c where c.contactNumber=:contactNumber and c.password=:password")
         }
-)
+)*/
+@Entity
+@Table(name = "CUSTOMER")
 public class CustomerEntity implements Serializable {
 
     @Id//member field below is the primary key of current entity.
     @Column(name = "id")//the name of the column of the table
     @GeneratedValue(strategy = GenerationType.IDENTITY)//configure the way of increment of the specified column(field)/how the primary key should be generated
-    private int id;
+    private long id;
 
     @Column(name="uuid",nullable = false)
     private String uuid;
+
     @Column(name = "firstname",nullable = false)
     private String firstName;
 
@@ -47,11 +54,11 @@ public class CustomerEntity implements Serializable {
 
     }
     //getter setter of all the variables
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -121,4 +128,14 @@ public class CustomerEntity implements Serializable {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<AddressEntity> address = new ArrayList<AddressEntity>();
+
+    public List<AddressEntity> getAddress() {
+        return address;
+    }
+
+    public void setAddress(List<AddressEntity> address) {
+        this.address = address;
+    }
 }

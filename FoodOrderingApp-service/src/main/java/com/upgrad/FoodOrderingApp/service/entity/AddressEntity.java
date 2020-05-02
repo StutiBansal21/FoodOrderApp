@@ -4,60 +4,65 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-/**
- * AddressEntity class contains all the attributes to be mapped to all the fields in address table in the database.
- * All the annotations which are used to specify all the constraints to the columns in the database must be correctly implemented.
- */
-@Entity
-@Table(name = "address")
-@NamedQueries({
+
+/*@NamedQueries({
+         @NamedQuery(name = "deleteAddressById", query = "delete from AddressEntity a where a.uuid=:addressuuid"),
+        @NamedQuery(name = "getAddressById", query = "select a from AddressEntity a where a.uuid=:addressuuid")
+
         @NamedQuery(name = "getAllAddress", query = "select b from CustomerAddressEntity a inner join a.address b where " +
                 "a.customer = :customer order by b.id desc"),
         @NamedQuery(name = "getAddressByUUID", query = "select b from CustomerAddressEntity a inner join a.address b where " +
                 "b.uuid = :uuid")
-})
+})*/
+@Entity
+@Table(name = "address")
 public class AddressEntity implements Serializable {
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private long id;
 
-    @Column(name = "UUID", length = 64, nullable = false)
+    @Column(name = "uuid", nullable = false)
     private String uuid;
 
     @Column(name = "flat_buil_number", nullable = false)
-    private String flatBuilNo;
+    private String flatBuilNumber;
 
-    @Column(nullable = false)
+    @Column(name = "locality",nullable = false)
     private String locality;
 
-    @Column(nullable = false)
+    @Column(name = "city",nullable = false)
     private String city;
 
-    @Column(nullable = false)
+    @Column(name = "pincode",nullable = false)
     private String pincode;
 
-    @OneToOne
-    @NotNull
-    private StateEntity state;
+    @Column(name = "state_id",nullable = false)
+    private long stateId;
 
-    public AddressEntity(String uuid, String flatBuilNo, String locality, String city, String pincode, StateEntity state) {
+    //constructor
+    public AddressEntity() {}
+
+    public AddressEntity(long id, String uuid, String flatBuilNumber, String locality, String city, String pincode, long stateId) {
+        this.id = id;
         this.uuid = uuid;
-        this.flatBuilNo = flatBuilNo;
+        this.flatBuilNumber = flatBuilNumber;
         this.locality = locality;
         this.city = city;
         this.pincode = pincode;
-        this.state = state;
+        this.stateId = stateId;
     }
 
-    public AddressEntity() {
-    }
 
-    public Integer getId() {
+
+
+    //getter and setters
+    public long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -69,12 +74,12 @@ public class AddressEntity implements Serializable {
         this.uuid = uuid;
     }
 
-    public String getFlatBuilNo() {
-        return flatBuilNo;
+    public String getFlatBuilNumber() {
+        return flatBuilNumber;
     }
 
-    public void setFlatBuilNo(String flatBuilNo) {
-        this.flatBuilNo = flatBuilNo;
+    public void setFlatBuilNumber(String flatBuilNumber) {
+        this.flatBuilNumber = flatBuilNumber;
     }
 
     public String getLocality() {
@@ -101,12 +106,11 @@ public class AddressEntity implements Serializable {
         this.pincode = pincode;
     }
 
-    public StateEntity getState() {
-        return state;
+    public long getStateId() {
+        return stateId;
     }
 
-    public void setState(StateEntity state) {
-        this.state = state;
+    public void setStateId(long stateId) {
+        this.stateId = stateId;
     }
-
 }
