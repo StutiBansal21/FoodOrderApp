@@ -148,7 +148,7 @@ public class AddressDaoImpl implements AddressDao{
 
         try {
             //the query is written which searches for the required in the database
-            TypedQuery<AddressEntity> query = entityManager.createQuery("Select u from AddressEntity a where u.id = :addressId", AddressEntity.class);
+            TypedQuery<AddressEntity> query = entityManager.createQuery("Select u from AddressEntity u where u.id = :addressId", AddressEntity.class);
             query.setParameter("addressId", addressId);
             list = query.getResultList();
 

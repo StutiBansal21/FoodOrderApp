@@ -138,7 +138,7 @@ public class AddressController {
     public ResponseEntity deleteAddress(@PathVariable("address_id")final String addressUuid,@RequestHeader("accessToken")final String accessToken)
     {
         try {
-            boolean check=false;//creating a flag to check the values
+            //boolean check=false;//creating a flag to check the values
             CustomerEntity customerEntity=customerServiceImpl.getCustomer(accessToken);
             if(customerEntity == null) {
                 //if the accessToken doesnt exist in the db table
@@ -152,10 +152,6 @@ public class AddressController {
                 //if the customer has not logged out but the max time limit to stay logged in has exceeded.
                 throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
             }
-            for(AddressEntity address : customerEntity.getAddress()){
-                if(address.getUuid().equalsIgnoreCase(addressUuid))
-                    check = true;
-            }
             //if(addressUuid.length()==0)//required hai
             if(addressUuid.isEmpty())
             {
@@ -164,11 +160,11 @@ public class AddressController {
             AddressEntity addressEntity=addressServiceImpl.searchByUuid(addressUuid);
             CustomerAddressEntity customerAddressEntity=addressServiceImpl.searchByAddressId(addressEntity.getId());
 
-            //if(customerAddressEntity.getCustomerId()!=customerEntity.getId())//nhi chl rhi
-            if(!check)
+            if(customerAddressEntity.getCustomerId()!=customerEntity.getId())//nhi chl rhi
+           // if(!check)
             {
                 //if the customer id of the table doesnt match with the id of the accessToken customer then this exception is thrown
-                throw new AuthorizationFailedException("ATHR-004", "You are not authorized to view/update/delete any one else's address.");
+                throw new AuthorizationFailedException("ATHR-004","You are not authorized to view/update/delete any one else's address.");
             }
             if(addressEntity == null)//nhi chl rhi
             {
